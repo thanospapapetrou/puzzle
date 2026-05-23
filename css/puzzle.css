@@ -5,3 +5,7 @@ body {
 canvas {
     border: 10px solid red;
 }
+
+div {
+    float: right;
+}

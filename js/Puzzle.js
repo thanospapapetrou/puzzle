@@ -3,15 +3,13 @@
 class Puzzle {
     static #CONTEXT = '2d';
     static #SELECTORS = {columns: 'span#columns', rows: 'span#rows', time: 'span#time'};
-    static #TILE = {width: 100, height: 100};
+    static #SIZES = {puzzle: {width: 500, height: 500}, example: {width: 100, height: 100}};
 
     // TODO
-    // timer
-    // #tiles -> #tiles
-    // alert win
     // slide
     // random image
     // initialization menu
+    // borders?
 
     #puzzle;
     #example;
@@ -22,13 +20,13 @@ class Puzzle {
     #timer;
 
     static main() {
-        new Puzzle('./img/rillaboom.png', 2, 3);
+        new Puzzle('./img/rillaboom.png', 5, 5);
     }
 
     constructor(img, rows, columns) {
         this.#puzzle = document.querySelector('canvas#puzzle');
         this.#example = document.querySelector('canvas#example');
-        this.#image = new Image(columns * Puzzle.#TILE.width, rows * Puzzle.#TILE.height);
+        this.#image = new Image(Puzzle.#SIZES.puzzle.width, Puzzle.#SIZES.puzzle.height);
         this.rows = rows;
         this.columns = columns;
         this.#tiles = [];
@@ -89,27 +87,32 @@ class Puzzle {
                         this.#tiles[row][column].column * this.#image.naturalWidth / this.columns,
                         this.#tiles[row][column].row * this.#image.naturalHeight / this.rows,
                         this.#image.naturalWidth / this.columns, this.#image.naturalHeight / this.rows,
-                        column * Puzzle.#TILE.width, row * Puzzle.#TILE.height,
-                        Puzzle.#TILE.width, Puzzle.#TILE.height);
+                        column * Puzzle.#SIZES.puzzle.width / this.columns,
+                        row * Puzzle.#SIZES.puzzle.height / this.rows,
+                        Puzzle.#SIZES.puzzle.width / this.columns, Puzzle.#SIZES.puzzle.height / this.rows);
             }
         }
         if (this.finished) {
             this.#timer.stop();
-            this.listener = null; // TODO
+            this.listener = null; // TODO does not stop
             //TODO alert('Well done!');
         }
     }
 
     pick(event) {
-        const row = Math.floor((event.clientY - this.#puzzle.getBoundingClientRect().top) / Puzzle.#TILE.height);
-        const column = Math.floor((event.clientX - this.#puzzle.getBoundingClientRect().left) / Puzzle.#TILE.width);
+        const row = Math.floor((event.clientY - this.#puzzle.getBoundingClientRect().top)
+                / Puzzle.#SIZES.puzzle.height * this.rows);
+        const column = Math.floor((event.clientX - this.#puzzle.getBoundingClientRect().left)
+                / Puzzle.#SIZES.puzzle.width * this.columns);
         this.#selected = {row, column};
         this.listener = this.swap.bind(this);
     }
 
     swap() {
-        const row = Math.floor((event.clientY - this.#puzzle.getBoundingClientRect().top) / Puzzle.#TILE.height);
-        const column = Math.floor((event.clientX - this.#puzzle.getBoundingClientRect().left) / Puzzle.#TILE.width);
+        const row = Math.floor((event.clientY - this.#puzzle.getBoundingClientRect().top)
+                / Puzzle.#SIZES.puzzle.height * this.rows);
+        const column = Math.floor((event.clientX - this.#puzzle.getBoundingClientRect().left)
+                / Puzzle.#SIZES.puzzle.width * this.columns);
         if ((this.#selected.row == row) && (this.#selected.column == column)) {
             // TODO do nothing
         } else {
@@ -126,8 +129,8 @@ class Puzzle {
     }
 
     renderOriginal() {
-        this.#example.width = this.#image.width;
-        this.#example.height = this.#image.height;
+        this.#example.width = Puzzle.#SIZES.example.width;
+        this.#example.height = Puzzle.#SIZES.example.height;
         this.#example.getContext(Puzzle.#CONTEXT).drawImage(this.#image,
                 0, 0, this.#image.naturalWidth, this.#image.naturalHeight,
                 0, 0, this.#example.width, this.#example.height);
