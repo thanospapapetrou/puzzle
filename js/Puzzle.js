@@ -62,6 +62,17 @@ class Puzzle {
         document.querySelector(Puzzle.#SELECTORS.columns).firstChild.nodeValue = columns;
     }
 
+    get finished() {
+        for (let row = 0; row < this.rows; row++) {
+            for (let column = 0; column < this.columns; column++) {
+                if ((this.#tiles[row][column].row != row) || (this.#tiles[row][column].column != column)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     set listener(listener) {
         this.#puzzle.removeEventListener('mousedown', this.#listener);
         this.#listener = listener;
@@ -81,6 +92,11 @@ class Puzzle {
                         column * Puzzle.#TILE.width, row * Puzzle.#TILE.height,
                         Puzzle.#TILE.width, Puzzle.#TILE.height);
             }
+        }
+        if (this.finished) {
+            this.#timer.stop();
+            this.listener = null; // TODO
+            //TODO alert('Well done!');
         }
     }
 
