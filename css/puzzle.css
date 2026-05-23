@@ -3,9 +3,10 @@ body {
 }
 
 canvas {
-    border: 10px solid red;
+    display: none;
 }
 
 div {
+    display: none;
     float: right;
 }

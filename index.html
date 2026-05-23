@@ -7,13 +7,36 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="./css/puzzle.css" />
+        <script src="./js/Display.js"></script>
         <script src="./js/Puzzle.js"></script>
+        <script src="./js/Theme.js"></script>
         <script src="./js/Timer.js"></script>
     </head>
     <body onload="Puzzle.main();">
         <h1>Puzzle</h1>
+        <form id="parameters" action="./index.html">
+            <label for="parameterTheme">Theme:</label>
+            <select id="parameterTheme" name="theme">
+                <option value="ANIMALS">Animals</option>
+                <option value="ART">Art</option>
+                <option value="POKEMON">Pokémon</option>
+            </select>
+            <br />
+            <label for="parameterRows">Rows:</label>
+            <input type="number" id="parameterRows" name="rows" min="2" max="10" value="2" />
+            <br />
+            <label for="parameterColumns">Columns:</label>
+            <input type="number" id="parameterColumns" name="columns" min="2" max="10" value="2" />
+            <br />
+            <label for="parameterExample">Example:</label>
+            <input type="checkbox" id="parameterExample" name="example" value="true" checked />
+            <br />
+            <input type="submit" value="Start" autofocus />
+        </form>
         <canvas id="puzzle"></canvas>
-        <div>
+        <div id="info">
+            <p>Theme: <span id="theme">&nbsp;</span></p>
+            <p>ID: <span id="id">&nbsp;</span></p>
             <p>Rows: <span id="rows">&nbsp;</span></p>
             <p>Columns: <span id="columns">&nbsp;</span></p>
             <p>Time: <span id="time">00:00</span></p>
