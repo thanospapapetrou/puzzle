@@ -2,24 +2,24 @@
 
 class Puzzle {
     static #CONTEXT = '2d';
-    static #SELECTORS = {columns: 'span#columns', rows: 'span#rows'};
+    static #SELECTORS = {columns: 'span#columns', rows: 'span#rows', time: 'span#time'};
     static #TILE = {width: 100, height: 100};
 
     // TODO
     // timer
-    // #state -> #tiles
+    // #tiles -> #tiles
     // alert win
     // slide
     // random image
     // initialization menu
-    // #example -> #example
 
     #puzzle;
     #example;
     #image;
-    #state;
+    #tiles;
     #selected;
     #listener;
+    #timer;
 
     static main() {
         new Puzzle('./img/rillaboom.png', 2, 3);
@@ -31,7 +31,7 @@ class Puzzle {
         this.#image = new Image(columns * Puzzle.#TILE.width, rows * Puzzle.#TILE.height);
         this.rows = rows;
         this.columns = columns;
-        this.#state = [];
+        this.#tiles = [];
         this.#selected = null;
         this.listener = null;
         this.shuffle();
@@ -41,6 +41,7 @@ class Puzzle {
             that.renderOriginal();
             that.listener = that.pick.bind(that);
             // TODO pointer
+            that.#timer = new Timer(Puzzle.#SELECTORS.time);
         };
         this.#image.src = img;
     }
@@ -74,8 +75,8 @@ class Puzzle {
         for (let row = 0; row < this.rows; row++) {
             for (let column = 0; column < this.columns; column++) {
                 context.drawImage(this.#image,
-                        this.#state[row][column].column * this.#image.naturalWidth / this.columns,
-                        this.#state[row][column].row * this.#image.naturalHeight / this.rows,
+                        this.#tiles[row][column].column * this.#image.naturalWidth / this.columns,
+                        this.#tiles[row][column].row * this.#image.naturalHeight / this.rows,
                         this.#image.naturalWidth / this.columns, this.#image.naturalHeight / this.rows,
                         column * Puzzle.#TILE.width, row * Puzzle.#TILE.height,
                         Puzzle.#TILE.width, Puzzle.#TILE.height);
@@ -96,12 +97,12 @@ class Puzzle {
         if ((this.#selected.row == row) && (this.#selected.column == column)) {
             // TODO do nothing
         } else {
-            const tempRow = this.#state[this.#selected.row][this.#selected.column].row;
-            const tempColumn = this.#state[this.#selected.row][this.#selected.column].column;
-            this.#state[this.#selected.row][this.#selected.column].row = this.#state[row][column].row;
-            this.#state[this.#selected.row][this.#selected.column].column = this.#state[row][column].column;
-            this.#state[row][column].row = tempRow;
-            this.#state[row][column].column = tempColumn;
+            const tempRow = this.#tiles[this.#selected.row][this.#selected.column].row;
+            const tempColumn = this.#tiles[this.#selected.row][this.#selected.column].column;
+            this.#tiles[this.#selected.row][this.#selected.column].row = this.#tiles[row][column].row;
+            this.#tiles[this.#selected.row][this.#selected.column].column = this.#tiles[row][column].column;
+            this.#tiles[row][column].row = tempRow;
+            this.#tiles[row][column].column = tempColumn;
             this.render();
         }
         this.#selected = null;
@@ -118,9 +119,9 @@ class Puzzle {
 
     shuffle() {
         for (let row = 0; row < this.rows; row++) {
-            this.#state[row] = [];
+            this.#tiles[row] = [];
             for (let column = 0; column < this.columns; column++) {
-                this.#state[row][column] = {row, column};
+                this.#tiles[row][column] = {row, column};
             }
         }
         for (let k = this.rows * this.columns - 1; k >= 0; k--) {
@@ -129,13 +130,13 @@ class Puzzle {
             const kcol = k % this.columns;
             const lrow = Math.floor(l / this.columns);
             const lcol = l % this.columns;
-            const tempRow = this.#state[krow][kcol].row;
-            const tempColumn = this.#state[krow][kcol].column;
-            this.#state[krow][kcol].row = this.#state[lrow][lcol].row;
-            this.#state[krow][kcol].column = this.#state[lrow][lcol].column;
-            this.#state[lrow][lcol].row = tempRow;
-            this.#state[lrow][lcol].column = tempColumn;
+            const tempRow = this.#tiles[krow][kcol].row;
+            const tempColumn = this.#tiles[krow][kcol].column;
+            this.#tiles[krow][kcol].row = this.#tiles[lrow][lcol].row;
+            this.#tiles[krow][kcol].column = this.#tiles[lrow][lcol].column;
+            this.#tiles[lrow][lcol].row = tempRow;
+            this.#tiles[lrow][lcol].column = tempColumn;
         }
-        console.log(this.#state);
+        console.log(this.#tiles);
     }
 }
