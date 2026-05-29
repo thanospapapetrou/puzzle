@@ -1,0 +1,32 @@
+[
+  {
+    "title": "De Nachtwacht",
+    "description": "Rembrandt van Rijn (1642)",
+    "url": "./img/art/0.jpg"
+  },
+  {
+    "title": "Impression, soleil levant",
+    "description": "Claude Monet (1872)",
+    "url": "./img/art/1.jpg"
+  },
+  {
+    "title": "The Starry Night",
+    "description": "Vincent van Gogh (1889)",
+    "url": "./img/art/2.jpg"
+  },
+  {
+    "title": "Au Lapin Agile",
+    "description": "Pablo Picasso (1905)",
+    "url": "./img/art/3.jpg"
+  },
+  {
+    "title": "I and the Village",
+    "description": "Marc Chagall (1911)",
+    "url": "./img/art/4.jpg"
+  },
+  {
+    "title": "La persistència de la memòria",
+    "description": "Salvador Dalí (1931)",
+    "url": "./img/art/5.jpg"
+  }
+]

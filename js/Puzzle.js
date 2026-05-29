@@ -2,11 +2,13 @@
 
 class Puzzle {
     static #CONTEXT = '2d';
+    static #FORMAT = (id) => `#${id.toString().padStart(4, '0')}`;
     static #PARAMETERS = {
         theme: {name: 'theme', selector: 'select#parameterTheme'},
         rows: {name: 'rows', min: 2, max: 10, selector: 'input#parameterRows'},
         columns: {name: 'columns', min: 2, max: 10, selector: 'input#parameterColumns'},
-        example: {name: 'example', selector: 'input#parameterExample'}
+        example: {name: 'example', selector: 'input#parameterExample'},
+        id: {name: 'id'}
     };
     static #SELECTORS = {parameters: 'form#parameters', puzzle: 'canvas#puzzle', info: 'div#info', theme: 'span#theme',
         id: 'span#id', rows: 'span#rows', columns: 'span#columns', time: 'span#time', example: 'canvas#example'};
@@ -26,9 +28,9 @@ class Puzzle {
     #listener;
     #timer;
 
-    static main() {
+    static async main() {
         const parameters = new URLSearchParams(location.search);
-        const theme = Object.keys(Theme).filter((theme) => (theme == parameters.get(Puzzle.#PARAMETERS.theme.name)))[0]
+        const theme = Object.keys(await Theme).filter((theme) => (theme == parameters.get(Puzzle.#PARAMETERS.theme.name)))[0]
                 || null;
         let rows = parseInt(parameters.get(Puzzle.#PARAMETERS.rows.name));
         rows = ((Puzzle.#PARAMETERS.rows.min <= rows) && (rows <= Puzzle.#PARAMETERS.rows.max)) ? rows : null;
@@ -41,18 +43,23 @@ class Puzzle {
         (columns != null) && (document.querySelector(Puzzle.#PARAMETERS.columns.selector).value = columns);
         (example != null) && (document.querySelector(Puzzle.#PARAMETERS.example.selector).checked = example);
         if ((theme != null) && (rows != null) && (columns != null) && (example != null)) {
+            let id = parseInt(parameters.get(Puzzle.#PARAMETERS.id.name));
+            const puzzles = (await Theme)[theme].puzzles;
+            id = (id < puzzles.length) ? id : Math.floor(Math.random() * puzzles.length);
             document.querySelector(Puzzle.#SELECTORS.parameters).style.display = Display.NONE;
-            new Puzzle(theme, './img/rillaboom.png', 3, 3);
+            new Puzzle((await Theme)[theme], id, rows, columns, example);
         }
     }
 
-    constructor(theme, img, rows, columns) {
+    constructor(theme, id, rows, columns, example) {
         this.#puzzle = document.querySelector(Puzzle.#SELECTORS.puzzle);
         this.#example = document.querySelector(Puzzle.#SELECTORS.example);
         this.#image = new Image(Puzzle.#SIZES.puzzle.width, Puzzle.#SIZES.puzzle.height);
         this.theme = theme;
+        this.id = id;
         this.rows = rows;
         this.columns = columns;
+        document.querySelector(Puzzle.#SELECTORS.info).style.display = Display.INLINE_BLOCK;
         this.#tiles = [];
         this.#selected = null;
         this.listener = null;
@@ -60,18 +67,24 @@ class Puzzle {
         const that = this;
         this.#image.onload = function() {
             that.render();
-            that.renderOriginal();
             that.#puzzle.style.display = Display.INLINE_BLOCK;
-            document.querySelector(Puzzle.#SELECTORS.info).style.display = Display.INLINE_BLOCK;
+            if (example) {
+                that.renderOriginal();
+                that.#example.style.display = Display.INLINE_BLOCK;
+            }
             that.listener = that.pick.bind(that);
             // TODO pointer
             that.#timer = new Timer(Puzzle.#SELECTORS.time);
         };
-        this.#image.src = img;
+        this.#image.src = theme.puzzles[id].url;
     }
 
     set theme(theme) {
-        document.querySelector(Puzzle.#SELECTORS.theme).firstChild.nodeValue = Theme[theme];
+        document.querySelector(Puzzle.#SELECTORS.theme).firstChild.nodeValue = theme.name;
+    }
+
+    set id(id) {
+        document.querySelector(Puzzle.#SELECTORS.id).firstChild.nodeValue = Puzzle.#FORMAT(id);
     }
 
     get rows() {

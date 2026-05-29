@@ -1,0 +1,52 @@
+[
+  {
+    "title": "Bulbasaur",
+    "description": "Generation I - \uD83C\uDF31 Grass / \uD83D\uDC80 Poison",
+    "url": "https://archives.bulbagarden.net/media/upload/f/fb/0001Bulbasaur.png"
+  },
+  {
+    "title": "Ivysaur",
+    "description": "Generation I - \uD83C\uDF31 Grass / \uD83D\uDC80 Poison",
+    "url": "https://archives.bulbagarden.net/media/upload/8/81/0002Ivysaur.png"
+  },
+  {
+    "title": "Venusaur",
+    "description": "Generation I - \uD83C\uDF31 Grass / \uD83D\uDC80 Poison",
+    "url": "https://archives.bulbagarden.net/media/upload/6/6b/0003Venusaur.png"
+  },
+  {
+    "title": "Charmander",
+    "description": "Generation I - \uD83D\uDD25 Fire",
+    "url": "https://archives.bulbagarden.net/media/upload/2/27/0004Charmander.png"
+  },
+  {
+    "title": "Charmeleon",
+    "description": "Generation I - \uD83D\uDD25 Fire",
+    "url": "https://archives.bulbagarden.net/media/upload/0/05/0005Charmeleon.png"
+  },
+  {
+    "title": "Charizard",
+    "description": "Generation I - \uD83D\uDD25 Fire",
+    "url": "https://archives.bulbagarden.net/media/upload/3/38/0006Charizard.png"
+  },
+  {
+    "title": "Squirtle",
+    "description": "Generation I - \uD83C\uDF0A Water",
+    "url": "https://archives.bulbagarden.net/media/upload/5/54/0007Squirtle.png"
+  },
+  {
+    "title": "Wartortle",
+    "description": "Generation I - \uD83C\uDF0A Water",
+    "url": "https://archives.bulbagarden.net/media/upload/0/0f/0008Wartortle.png"
+  },
+  {
+    "title": "Blastoise",
+    "description": "Generation I - \uD83C\uDF0A Water",
+    "url": "https://archives.bulbagarden.net/media/upload/0/0a/0009Blastoise.png"
+  },
+  {
+    "title": "Caterpie",
+    "description": "Generation I - \uD83D\uDC1B Bug",
+    "url": "https://archives.bulbagarden.net/media/upload/5/5e/0010Caterpie.png"
+  }
+]
