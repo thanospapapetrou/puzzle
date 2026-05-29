@@ -2,11 +2,10 @@ body {
     font-family: 'Varela Round';
 }
 
-canvas {
+div {
     display: none;
 }
 
-div {
-    display: none;
+div#info {
     float: right;
 }

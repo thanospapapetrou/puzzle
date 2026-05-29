@@ -10,8 +10,9 @@ class Puzzle {
         example: {name: 'example', selector: 'input#parameterExample'},
         id: {name: 'id'}
     };
-    static #SELECTORS = {parameters: 'form#parameters', puzzle: 'canvas#puzzle', info: 'div#info', theme: 'span#theme',
-        id: 'span#id', rows: 'span#rows', columns: 'span#columns', time: 'span#time', example: 'canvas#example'};
+    static #SELECTORS = {parameters: 'form#parameters', main: 'div#main', title: 'h2#title',
+        description: 'h3#description', puzzle: 'canvas#puzzle', info: 'div#info', theme: 'span#theme', id: 'span#id',
+        rows: 'span#rows', columns: 'span#columns', time: 'span#time', example: 'canvas#example'};
     static #SIZES = {puzzle: {width: 500, height: 500}, example: {width: 100, height: 100}};
 
     // TODO
@@ -55,11 +56,12 @@ class Puzzle {
         this.#puzzle = document.querySelector(Puzzle.#SELECTORS.puzzle);
         this.#example = document.querySelector(Puzzle.#SELECTORS.example);
         this.#image = new Image(Puzzle.#SIZES.puzzle.width, Puzzle.#SIZES.puzzle.height);
+        this.title = theme.puzzles[id].title;
+        this.description = theme.puzzles[id].description;
         this.theme = theme;
         this.id = id;
         this.rows = rows;
         this.columns = columns;
-        document.querySelector(Puzzle.#SELECTORS.info).style.display = Display.INLINE_BLOCK;
         this.#tiles = [];
         this.#selected = null;
         this.listener = null;
@@ -67,16 +69,24 @@ class Puzzle {
         const that = this;
         this.#image.onload = function() {
             that.render();
-            that.#puzzle.style.display = Display.INLINE_BLOCK;
             if (example) {
                 that.renderOriginal();
-                that.#example.style.display = Display.INLINE_BLOCK;
             }
             that.listener = that.pick.bind(that);
             // TODO pointer
             that.#timer = new Timer(Puzzle.#SELECTORS.time);
+            document.querySelector(Puzzle.#SELECTORS.main).style.display = Display.INLINE_BLOCK;
+            document.querySelector(Puzzle.#SELECTORS.info).style.display = Display.INLINE_BLOCK;
         };
         this.#image.src = theme.puzzles[id].url;
+    }
+
+    set title(title) {
+        document.querySelector(Puzzle.#SELECTORS.title).firstChild.nodeValue = title;
+    }
+
+    set description(description) {
+        document.querySelector(Puzzle.#SELECTORS.description).firstChild.nodeValue = description;
     }
 
     set theme(theme) {

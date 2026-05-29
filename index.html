@@ -1,12 +1,12 @@
 <!doctype html>
 <html lang="en">
     <head>
-        <meta charset="UTF-8" />
+        <meta charset="UTF-8"/>
         <title>Puzzle</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet" />
-        <link rel="stylesheet" href="./css/puzzle.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com"/>
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+        <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet"/>
+        <link rel="stylesheet" href="./css/puzzle.css"/>
         <script src="./js/Display.js"></script>
         <script src="./js/Puzzle.js"></script>
         <script src="./js/Theme.js"></script>
@@ -21,19 +21,23 @@
                 <option value="ART">Art</option>
                 <option value="POKEMON">Pokémon</option>
             </select>
-            <br />
+            <br/>
             <label for="parameterRows">Rows:</label>
-            <input type="number" id="parameterRows" name="rows" min="2" max="10" value="2" />
-            <br />
+            <input type="number" id="parameterRows" name="rows" min="2" max="10" value="2"/>
+            <br/>
             <label for="parameterColumns">Columns:</label>
-            <input type="number" id="parameterColumns" name="columns" min="2" max="10" value="2" />
-            <br />
+            <input type="number" id="parameterColumns" name="columns" min="2" max="10" value="2"/>
+            <br/>
             <label for="parameterExample">Example:</label>
-            <input type="checkbox" id="parameterExample" name="example" value="true" checked />
-            <br />
-            <input type="submit" value="Start" autofocus />
+            <input type="checkbox" id="parameterExample" name="example" value="true" checked/>
+            <br/>
+            <input type="submit" value="Start" autofocus/>
         </form>
-        <canvas id="puzzle"></canvas>
+        <div id="main">
+            <h2 id="title">&nbsp;</h2>
+            <h3 id="description">&nbsp;</h3>
+            <canvas id="puzzle"></canvas>
+        </div>
         <div id="info">
             <p>Theme: <span id="theme">&nbsp;</span></p>
             <p>ID: <span id="id">&nbsp;</span></p>
