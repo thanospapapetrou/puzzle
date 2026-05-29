@@ -1,12 +1,52 @@
 [
   {
-    "title": "Lion",
-    "description": "Panthera leo",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Lion_%28Panthera_leo%29_male_6y.jpg"
+    "title": "African Bush Elephant",
+    "description": "Loxodonta africana",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/9/93/Herd_of_Elephants.jpg"
+  },
+  {
+    "title": "Blue Whale",
+    "description": "Balaenoptera musculus",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/1/1c/Anim1754_-_Flickr_-_NOAA_Photo_Library.jpg"
+  },
+  {
+    "title": "Cat",
+    "description": "Felis catus",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/1/15/Cat_August_2010-4.jpg"
+  },
+  {
+    "title": "Eastern Gorilla",
+    "description": "Gorilla gorilla",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/1/15/Male_Gorilla_%28181091305%29.jpg"
+  },
+  {
+    "title": "Emperor Penguin",
+    "description": "Aptenodytes forsteri",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Aptenodytes_forsteri_-Snow_Hill_Island%2C_Antarctica_-adults_and_juvenile-8.jpg"
   },
   {
     "title": "Giraffe",
     "description": "Giraffa giraffa",
     "url": "https://upload.wikimedia.org/wikipedia/commons/0/02/Giraffe_Ithala_KZN_South_Africa_Luca_Galuzzi_2004.JPG"
+  },
+  {
+    "title": "Lion",
+    "description": "Panthera leo",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Lion_%28Panthera_leo%29_male_6y.jpg"
+  },
+  {
+    "title": "Red Fox",
+    "description": "Vulpes vulpes",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Red_fox_near_the_border_of_Sweden_in_Narvik%2C_Nordland%2C_Norway%2C_2023_September.jpg"
+  },
+  {
+    "title": "Seven-Spotted Laydybug",
+    "description": "Coccinella septempunctata",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/0/08/7-Spotted-Ladybug-Coccinella-septempunctata-sq1.jpg"
+  },
+  {
+    "title": "White Rhinoceros",
+    "description": "Ceratotherium simum",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/6/6b/Rhino_in_Solio_Reserve.jpg"
   }
 ]

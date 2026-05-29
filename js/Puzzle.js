@@ -13,7 +13,7 @@ class Puzzle {
     static #SELECTORS = {parameters: 'form#parameters', main: 'div#main', title: 'h2#title',
         description: 'h3#description', puzzle: 'canvas#puzzle', info: 'div#info', theme: 'span#theme', id: 'span#id',
         rows: 'span#rows', columns: 'span#columns', time: 'span#time', example: 'canvas#example'};
-    static #SIZES = {puzzle: {width: 500, height: 500}, example: {width: 100, height: 100}};
+    static #SIZES = {puzzle: {width: 600, height: 600}, example: {width: 300, height: 300}};
 
     // TODO
     // slide
