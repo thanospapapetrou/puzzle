@@ -1,6 +1,7 @@
 'use strict';
 
 class Puzzle {
+    static #BORDER = {width: 1, color: 'black', style: 'round'};
     static #CONTEXT = '2d';
     static #FORMAT = (id) => `#${id.toString().padStart(4, '0')}`;
     static #PARAMETERS = {
@@ -18,7 +19,7 @@ class Puzzle {
     // TODO
     // slide
     // pointers
-    // borders?
+    // do not distort image
 
     #puzzle;
     #example;
@@ -67,7 +68,6 @@ class Puzzle {
         this.shuffle();
         const that = this;
         this.#image.onload = function() {
-            this.render();
             if (example) {
                 this.#example.width = Puzzle.#SIZES.example.width;
                 this.#example.height = Puzzle.#SIZES.example.height;
@@ -75,10 +75,11 @@ class Puzzle {
                         0, 0, this.#image.naturalWidth, this.#image.naturalHeight,
                         0, 0, this.#example.width, this.#example.height);
             }
+            this.#timer = new Timer(Puzzle.#SELECTORS.time);
+            this.render();
             this.listener = this.pick.bind(that);
             document.querySelector(Puzzle.#SELECTORS.main).style.display = Display.INLINE_BLOCK;
             document.querySelector(Puzzle.#SELECTORS.info).style.display = Display.INLINE_BLOCK;
-            this.#timer = new Timer(Puzzle.#SELECTORS.time);
         }.bind(this);
         this.#image.src = theme.puzzles[id].url;
     }
@@ -127,15 +128,18 @@ class Puzzle {
     }
 
     set listener(listener) {
-        this.#puzzle.removeEventListener('mousedown', this.#listener);
+        this.#puzzle.removeEventListener('mousedown', this.#listener); // TODO constant
         this.#listener = listener;
-        this.#puzzle.addEventListener('mousedown', this.#listener);
+        this.#puzzle.addEventListener('mousedown', this.#listener); // TODO constant
     }
 
     render() {
         this.#puzzle.width = this.#image.width;
         this.#puzzle.height = this.#image.height;
         const context = this.#puzzle.getContext(Puzzle.#CONTEXT);
+        context.lineWidth = Puzzle.#BORDER.width;
+        context.strokeStyle = Puzzle.#BORDER.color;
+        context.lineCap = Puzzle.#BORDER.style;
         for (let row = 0; row < this.rows; row++) {
             for (let column = 0; column < this.columns; column++) {
                 context.drawImage(this.#image,
@@ -145,9 +149,51 @@ class Puzzle {
                         column * Puzzle.#SIZES.puzzle.width / this.columns,
                         row * Puzzle.#SIZES.puzzle.height / this.rows,
                         Puzzle.#SIZES.puzzle.width / this.columns, Puzzle.#SIZES.puzzle.height / this.rows);
+                if (!this.finished) {
+                    // left border
+                    if ((column == 0)
+                            || (this.#tiles[row][column - 1].row != this.#tiles[row][column].row)
+                            || (this.#tiles[row][column - 1].column != this.#tiles[row][column].column - 1)) {
+                        context.moveTo(column * Puzzle.#SIZES.puzzle.width / this.columns,
+                                row * Puzzle.#SIZES.puzzle.height / this.rows);
+                        context.lineTo(column * Puzzle.#SIZES.puzzle.width / this.columns,
+                                (row + 1) * Puzzle.#SIZES.puzzle.height / this.rows);
+                        context.stroke();
+                    }
+                    // bottom border
+                    if ((row == this.rows - 1)
+                            || (this.#tiles[row + 1][column].row != this.#tiles[row][column].row + 1)
+                            || (this.#tiles[row + 1][column].column != this.#tiles[row][column].column)) {
+                        context.moveTo(column * Puzzle.#SIZES.puzzle.width / this.columns,
+                                (row + 1) * Puzzle.#SIZES.puzzle.height / this.rows);
+                        context.lineTo((column + 1) * Puzzle.#SIZES.puzzle.width / this.columns,
+                                (row + 1) * Puzzle.#SIZES.puzzle.height / this.rows);
+                        context.stroke();
+                    }
+                    // right border
+                    if ((column == this.columns - 1)
+                            || (this.#tiles[row][column + 1].row != this.#tiles[row][column].row)
+                            || (this.#tiles[row][column + 1].column != this.#tiles[row][column].column + 1)) {
+                        context.moveTo((column + 1) * Puzzle.#SIZES.puzzle.width / this.columns,
+                                (row + 1) * Puzzle.#SIZES.puzzle.height / this.rows);
+                        context.lineTo((column + 1) * Puzzle.#SIZES.puzzle.width / this.columns,
+                                row * Puzzle.#SIZES.puzzle.height / this.rows);
+                        context.stroke();
+                    }
+                    // top border
+                    if ((row == 0)
+                            || (this.#tiles[row - 1][column].row != this.#tiles[row][column].row - 1)
+                            || (this.#tiles[row - 1][column].column != this.#tiles[row][column].column)) {
+                        context.moveTo((column + 1) * Puzzle.#SIZES.puzzle.width / this.columns,
+                                row * Puzzle.#SIZES.puzzle.height / this.rows);
+                        context.lineTo(column * Puzzle.#SIZES.puzzle.width / this.columns,
+                                row * Puzzle.#SIZES.puzzle.height / this.rows);
+                        context.stroke();
+                    }
+                }
             }
         }
-        if (this.finished && this.#timer) { // TODO if started
+        if (this.finished) {
             this.#timer.stop();
             this.listener = null;
             //TODO alert('Well done!');
@@ -168,15 +214,9 @@ class Puzzle {
                 / Puzzle.#SIZES.puzzle.height * this.rows);
         const column = Math.floor((event.clientX - this.#puzzle.getBoundingClientRect().left)
                 / Puzzle.#SIZES.puzzle.width * this.columns);
-        if ((this.#selected.row == row) && (this.#selected.column == column)) {
-            // TODO do nothing
-        } else {
-            const tempRow = this.#tiles[this.#selected.row][this.#selected.column].row;
-            const tempColumn = this.#tiles[this.#selected.row][this.#selected.column].column;
-            this.#tiles[this.#selected.row][this.#selected.column].row = this.#tiles[row][column].row;
-            this.#tiles[this.#selected.row][this.#selected.column].column = this.#tiles[row][column].column;
-            this.#tiles[row][column].row = tempRow;
-            this.#tiles[row][column].column = tempColumn;
+        if ((this.#selected.row != row) || (this.#selected.column != column)) {
+            [this.#tiles[this.#selected.row][this.#selected.column].row, this.#tiles[row][column].row] = [this.#tiles[row][column].row, this.#tiles[this.#selected.row][this.#selected.column].row];
+            [this.#tiles[this.#selected.row][this.#selected.column].column, this.#tiles[row][column].column] = [this.#tiles[row][column].column, this.#tiles[this.#selected.row][this.#selected.column].column];
             this.render();
         }
         if (!this.finished) {
