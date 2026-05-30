@@ -17,8 +17,7 @@ class Puzzle {
 
     // TODO
     // slide
-    // random image
-    // initialization menu
+    // pointers
     // borders?
 
     #puzzle;
@@ -68,16 +67,19 @@ class Puzzle {
         this.shuffle();
         const that = this;
         this.#image.onload = function() {
-            that.render();
+            this.render();
             if (example) {
-                that.renderOriginal();
+                this.#example.width = Puzzle.#SIZES.example.width;
+                this.#example.height = Puzzle.#SIZES.example.height;
+                this.#example.getContext(Puzzle.#CONTEXT).drawImage(this.#image,
+                        0, 0, this.#image.naturalWidth, this.#image.naturalHeight,
+                        0, 0, this.#example.width, this.#example.height);
             }
-            that.listener = that.pick.bind(that);
-            // TODO pointer
-            that.#timer = new Timer(Puzzle.#SELECTORS.time);
+            this.listener = this.pick.bind(that);
             document.querySelector(Puzzle.#SELECTORS.main).style.display = Display.INLINE_BLOCK;
             document.querySelector(Puzzle.#SELECTORS.info).style.display = Display.INLINE_BLOCK;
-        };
+            this.#timer = new Timer(Puzzle.#SELECTORS.time);
+        }.bind(this);
         this.#image.src = theme.puzzles[id].url;
     }
 
@@ -145,9 +147,9 @@ class Puzzle {
                         Puzzle.#SIZES.puzzle.width / this.columns, Puzzle.#SIZES.puzzle.height / this.rows);
             }
         }
-        if (this.finished) {
+        if (this.finished && this.#timer) { // TODO if started
             this.#timer.stop();
-            this.listener = null; // TODO does not stop
+            this.listener = null;
             //TODO alert('Well done!');
         }
     }
@@ -177,16 +179,10 @@ class Puzzle {
             this.#tiles[row][column].column = tempColumn;
             this.render();
         }
-        this.#selected = null;
-        this.listener = this.pick.bind(this);
-    }
-
-    renderOriginal() {
-        this.#example.width = Puzzle.#SIZES.example.width;
-        this.#example.height = Puzzle.#SIZES.example.height;
-        this.#example.getContext(Puzzle.#CONTEXT).drawImage(this.#image,
-                0, 0, this.#image.naturalWidth, this.#image.naturalHeight,
-                0, 0, this.#example.width, this.#example.height);
+        if (!this.finished) {
+            this.#selected = null;
+            this.listener = this.pick.bind(this);
+        }
     }
 
     shuffle() {
@@ -196,18 +192,16 @@ class Puzzle {
                 this.#tiles[row][column] = {row, column};
             }
         }
-        for (let k = this.rows * this.columns - 1; k >= 0; k--) {
-            const l = Math.floor(Math.random() * (k + 1));
-            const krow = Math.floor(k / this.columns);
-            const kcol = k % this.columns;
-            const lrow = Math.floor(l / this.columns);
-            const lcol = l % this.columns;
-            const tempRow = this.#tiles[krow][kcol].row;
-            const tempColumn = this.#tiles[krow][kcol].column;
-            this.#tiles[krow][kcol].row = this.#tiles[lrow][lcol].row;
-            this.#tiles[krow][kcol].column = this.#tiles[lrow][lcol].column;
-            this.#tiles[lrow][lcol].row = tempRow;
-            this.#tiles[lrow][lcol].column = tempColumn;
+        for (let k = this.rows * this.columns - 1; k > 0; k--) {
+            const l = Math.floor(Math.random() * k);
+            [this.#tiles[Math.floor(k / this.columns)][k % this.columns].row,
+                    this.#tiles[Math.floor(l / this.columns)][l % this.columns].row] =
+                    [this.#tiles[Math.floor(l / this.columns)][l % this.columns].row,
+                    this.#tiles[Math.floor(k / this.columns)][k % this.columns].row];
+            [this.#tiles[Math.floor(k / this.columns)][k % this.columns].column,
+                    this.#tiles[Math.floor(l / this.columns)][l % this.columns].column] =
+                    [this.#tiles[Math.floor(l / this.columns)][l % this.columns].column,
+                    this.#tiles[Math.floor(k / this.columns)][k % this.columns].column];
         }
         console.log(this.#tiles);
     }
