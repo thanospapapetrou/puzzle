@@ -4,7 +4,11 @@ class Puzzle {
     static #BORDER = {width: 1, selected: 15, color: 'black', style: 'square'};
     static #CONTEXT = '2d';
     static #FORMAT = (id) => `#${id.toString().padStart(4, '0')}`;
-    static #ID = (id) => `ID: ${id}`;
+    static #MESSAGE = {
+        id: (id) => `ID: ${id}`,
+        tiles: (tiles) => `Tiles: ${JSON.stringify(tiles)}`,
+        wellDone: 'Well done!'
+    };
     static #PARAMETERS = {
         theme: {name: 'theme', selector: 'select#parameterTheme'},
         rows: {name: 'rows', min: 2, max: 10, selector: 'input#parameterRows'},
@@ -19,15 +23,15 @@ class Puzzle {
 
     // TODO
     // slide
-    // pointers
     // do not distort image
 
     #puzzle;
     #example;
     #image;
     #tiles;
-    #listener;
     #timer;
+    #listener;
+    #cursor;
 
     static async main() {
         const parameters = new URLSearchParams(location.search);
@@ -75,10 +79,13 @@ class Puzzle {
             }
             this.#timer = new Timer(Puzzle.#SELECTORS.time);
             this.render();
+            document.body.style.cursor = Cursor.DEFAULT;
+            this.#puzzle.style.cursor = Cursor.GRAB;
             this.listener = this.pick.bind(this);
             document.querySelector(Puzzle.#SELECTORS.main).style.display = Display.INLINE_BLOCK;
             document.querySelector(Puzzle.#SELECTORS.info).style.display = Display.INLINE_BLOCK;
         }.bind(this);
+        document.body.style.cursor = Cursor.WAIT;
         this.#image.src = theme.puzzles[id].url;
     }
 
@@ -95,7 +102,7 @@ class Puzzle {
     }
 
     set id(id) {
-        console.log(Puzzle.#ID(Puzzle.#FORMAT(id)));
+        console.log(Puzzle.#MESSAGE.id(Puzzle.#FORMAT(id)));
         document.querySelector(Puzzle.#SELECTORS.id).firstChild.nodeValue = Puzzle.#FORMAT(id);
     }
 
@@ -144,9 +151,15 @@ class Puzzle {
     }
 
     set listener(listener) {
-        this.#puzzle.removeEventListener('mousedown', this.#listener); // TODO constant
+        this.#puzzle.removeEventListener(Event.MOUSE_DOWN, this.#listener);
         this.#listener = listener;
-        this.#puzzle.addEventListener('mousedown', this.#listener); // TODO constant
+        this.#puzzle.addEventListener(Event.MOUSE_DOWN, this.#listener);
+    }
+
+    set cursor(cursor) {
+        this.#puzzle.removeEventListener(Event.MOUSE_MOVE, this.#cursor);
+        this.#cursor = cursor;
+        this.#puzzle.addEventListener(Event.MOUSE_MOVE, this.#cursor);
     }
 
     render() {
@@ -209,11 +222,6 @@ class Puzzle {
                 }
             }
         }
-        if (this.finished) {
-            this.#timer.stop();
-            this.listener = null;
-            //TODO alert('Well done!');
-        }
     }
 
     pick(event) {
@@ -222,10 +230,11 @@ class Puzzle {
         const column = Math.floor((event.clientX - this.#puzzle.getBoundingClientRect().left)
                 / Puzzle.#SIZES.puzzle.width * this.columns);
         this.selected = {row, column};
+        this.cursor = this.drop.bind(this);
         this.listener = this.swap.bind(this);
     }
 
-    swap() {
+    swap(event) {
         const row = Math.floor((event.clientY - this.#puzzle.getBoundingClientRect().top)
                 / Puzzle.#SIZES.puzzle.height * this.rows);
         const column = Math.floor((event.clientX - this.#puzzle.getBoundingClientRect().left)
@@ -236,10 +245,22 @@ class Puzzle {
             [this.#tiles[this.selected.row][this.selected.column].column, this.#tiles[row][column].column] =
                     [this.#tiles[row][column].column, this.#tiles[this.selected.row][this.selected.column].column];
             this.selected = null;
-            if (!this.finished) {
-                this.listener = this.pick.bind(this);
+            this.cursor = null;
+            this.#puzzle.style.cursor = this.finished ? Cursor.DEFAULT : Cursor.GRAB;
+            this.listener = this.finished ? null : this.pick.bind(this);
+            if (this.finished) {
+                this.#timer.stop();
+                setTimeout(() => alert(Puzzle.#MESSAGE.wellDone));
             }
         }
+    }
+
+    drop(event) {
+        const row = Math.floor((event.clientY - this.#puzzle.getBoundingClientRect().top)
+                / Puzzle.#SIZES.puzzle.height * this.rows);
+        const column = Math.floor((event.clientX - this.#puzzle.getBoundingClientRect().left)
+                / Puzzle.#SIZES.puzzle.width * this.columns);
+        this.#puzzle.style.cursor = this.#tiles[row][column].selected ? Cursor.NO_DROP : Cursor.GRABBING;
     }
 
     shuffle() {
@@ -261,6 +282,6 @@ class Puzzle {
                     [this.#tiles[Math.floor(l / this.columns)][l % this.columns].column,
                     this.#tiles[Math.floor(k / this.columns)][k % this.columns].column];
         }
-        console.log(this.#tiles);
+        console.log(Puzzle.#MESSAGE.tiles(this.#tiles));
     }
 }
