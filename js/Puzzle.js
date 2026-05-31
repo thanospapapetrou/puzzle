@@ -1,9 +1,10 @@
 'use strict';
 
 class Puzzle {
-    static #BORDER = {width: 1, color: 'black', style: 'round'};
+    static #BORDER = {width: 1, selected: 15, color: 'black', style: 'square'};
     static #CONTEXT = '2d';
     static #FORMAT = (id) => `#${id.toString().padStart(4, '0')}`;
+    static #ID = (id) => `ID: ${id}`;
     static #PARAMETERS = {
         theme: {name: 'theme', selector: 'select#parameterTheme'},
         rows: {name: 'rows', min: 2, max: 10, selector: 'input#parameterRows'},
@@ -25,7 +26,6 @@ class Puzzle {
     #example;
     #image;
     #tiles;
-    #selected;
     #listener;
     #timer;
 
@@ -62,11 +62,9 @@ class Puzzle {
         this.id = id;
         this.rows = rows;
         this.columns = columns;
-        this.#tiles = [];
-        this.#selected = null;
-        this.listener = null;
         this.shuffle();
-        const that = this;
+        this.selected = null;
+        this.listener = null;
         this.#image.onload = function() {
             if (example) {
                 this.#example.width = Puzzle.#SIZES.example.width;
@@ -77,7 +75,7 @@ class Puzzle {
             }
             this.#timer = new Timer(Puzzle.#SELECTORS.time);
             this.render();
-            this.listener = this.pick.bind(that);
+            this.listener = this.pick.bind(this);
             document.querySelector(Puzzle.#SELECTORS.main).style.display = Display.INLINE_BLOCK;
             document.querySelector(Puzzle.#SELECTORS.info).style.display = Display.INLINE_BLOCK;
         }.bind(this);
@@ -97,6 +95,7 @@ class Puzzle {
     }
 
     set id(id) {
+        console.log(Puzzle.#ID(Puzzle.#FORMAT(id)));
         document.querySelector(Puzzle.#SELECTORS.id).firstChild.nodeValue = Puzzle.#FORMAT(id);
     }
 
@@ -114,6 +113,23 @@ class Puzzle {
     
     set columns(columns) {
         document.querySelector(Puzzle.#SELECTORS.columns).firstChild.nodeValue = columns;
+    }
+
+    get selected() {
+        for (let i = 0; i < this.rows; i++) {
+            for (let j = 0; j < this.columns; j++) {
+                if (this.#tiles[i][j].selected) {
+                    return {row: i, column: j};
+                }
+            }
+        }
+        return null;
+    }
+
+    set selected(tile) {
+        this.selected && (this.#tiles[this.selected.row][this.selected.column].selected = false);
+        tile && (this.#tiles[tile.row][tile.column].selected = true);
+        this.render();
     }
 
     get finished() {
@@ -137,7 +153,6 @@ class Puzzle {
         this.#puzzle.width = this.#image.width;
         this.#puzzle.height = this.#image.height;
         const context = this.#puzzle.getContext(Puzzle.#CONTEXT);
-        context.lineWidth = Puzzle.#BORDER.width;
         context.strokeStyle = Puzzle.#BORDER.color;
         context.lineCap = Puzzle.#BORDER.style;
         for (let row = 0; row < this.rows; row++) {
@@ -150,46 +165,47 @@ class Puzzle {
                         row * Puzzle.#SIZES.puzzle.height / this.rows,
                         Puzzle.#SIZES.puzzle.width / this.columns, Puzzle.#SIZES.puzzle.height / this.rows);
                 if (!this.finished) {
+                    context.beginPath();
+                    context.lineWidth = this.#tiles[row][column].selected ? Puzzle.#BORDER.selected
+                            : Puzzle.#BORDER.width;
                     // left border
-                    if ((column == 0)
+                    if (this.#tiles[row][column].selected || (column == 0)
                             || (this.#tiles[row][column - 1].row != this.#tiles[row][column].row)
                             || (this.#tiles[row][column - 1].column != this.#tiles[row][column].column - 1)) {
-                        context.moveTo(column * Puzzle.#SIZES.puzzle.width / this.columns,
-                                row * Puzzle.#SIZES.puzzle.height / this.rows);
-                        context.lineTo(column * Puzzle.#SIZES.puzzle.width / this.columns,
-                                (row + 1) * Puzzle.#SIZES.puzzle.height / this.rows);
-                        context.stroke();
+                        context.moveTo(column * Puzzle.#SIZES.puzzle.width / this.columns + context.lineWidth / 2,
+                                row * Puzzle.#SIZES.puzzle.height / this.rows + context.lineWidth / 2);
+                        context.lineTo(column * Puzzle.#SIZES.puzzle.width / this.columns + context.lineWidth / 2,
+                                (row + 1) * Puzzle.#SIZES.puzzle.height / this.rows - context.lineWidth / 2);
                     }
                     // bottom border
-                    if ((row == this.rows - 1)
+                    if (this.#tiles[row][column].selected || (row == this.rows - 1)
                             || (this.#tiles[row + 1][column].row != this.#tiles[row][column].row + 1)
                             || (this.#tiles[row + 1][column].column != this.#tiles[row][column].column)) {
-                        context.moveTo(column * Puzzle.#SIZES.puzzle.width / this.columns,
-                                (row + 1) * Puzzle.#SIZES.puzzle.height / this.rows);
-                        context.lineTo((column + 1) * Puzzle.#SIZES.puzzle.width / this.columns,
-                                (row + 1) * Puzzle.#SIZES.puzzle.height / this.rows);
-                        context.stroke();
+                        context.moveTo(column * Puzzle.#SIZES.puzzle.width / this.columns + context.lineWidth / 2,
+                                (row + 1) * Puzzle.#SIZES.puzzle.height / this.rows - context.lineWidth / 2);
+                        context.lineTo((column + 1) * Puzzle.#SIZES.puzzle.width / this.columns - context.lineWidth / 2,
+                                (row + 1) * Puzzle.#SIZES.puzzle.height / this.rows - context.lineWidth / 2);
                     }
                     // right border
-                    if ((column == this.columns - 1)
+                    if (this.#tiles[row][column].selected || (column == this.columns - 1)
                             || (this.#tiles[row][column + 1].row != this.#tiles[row][column].row)
                             || (this.#tiles[row][column + 1].column != this.#tiles[row][column].column + 1)) {
-                        context.moveTo((column + 1) * Puzzle.#SIZES.puzzle.width / this.columns,
-                                (row + 1) * Puzzle.#SIZES.puzzle.height / this.rows);
-                        context.lineTo((column + 1) * Puzzle.#SIZES.puzzle.width / this.columns,
-                                row * Puzzle.#SIZES.puzzle.height / this.rows);
-                        context.stroke();
+                        context.moveTo((column + 1) * Puzzle.#SIZES.puzzle.width / this.columns - context.lineWidth / 2,
+                                (row + 1) * Puzzle.#SIZES.puzzle.height / this.rows - context.lineWidth / 2);
+                        context.lineTo((column + 1) * Puzzle.#SIZES.puzzle.width / this.columns - context.lineWidth / 2,
+                                row * Puzzle.#SIZES.puzzle.height / this.rows + context.lineWidth / 2);
                     }
                     // top border
-                    if ((row == 0)
+                    if (this.#tiles[row][column].selected || (row == 0)
                             || (this.#tiles[row - 1][column].row != this.#tiles[row][column].row - 1)
                             || (this.#tiles[row - 1][column].column != this.#tiles[row][column].column)) {
-                        context.moveTo((column + 1) * Puzzle.#SIZES.puzzle.width / this.columns,
-                                row * Puzzle.#SIZES.puzzle.height / this.rows);
-                        context.lineTo(column * Puzzle.#SIZES.puzzle.width / this.columns,
-                                row * Puzzle.#SIZES.puzzle.height / this.rows);
-                        context.stroke();
+                        context.moveTo((column + 1) * Puzzle.#SIZES.puzzle.width / this.columns - context.lineWidth / 2,
+                                row * Puzzle.#SIZES.puzzle.height / this.rows + context.lineWidth / 2);
+                        context.lineTo(column * Puzzle.#SIZES.puzzle.width / this.columns + context.lineWidth / 2,
+                                row * Puzzle.#SIZES.puzzle.height / this.rows + context.lineWidth / 2);
+
                     }
+                    context.stroke();
                 }
             }
         }
@@ -205,7 +221,7 @@ class Puzzle {
                 / Puzzle.#SIZES.puzzle.height * this.rows);
         const column = Math.floor((event.clientX - this.#puzzle.getBoundingClientRect().left)
                 / Puzzle.#SIZES.puzzle.width * this.columns);
-        this.#selected = {row, column};
+        this.selected = {row, column};
         this.listener = this.swap.bind(this);
     }
 
@@ -214,22 +230,24 @@ class Puzzle {
                 / Puzzle.#SIZES.puzzle.height * this.rows);
         const column = Math.floor((event.clientX - this.#puzzle.getBoundingClientRect().left)
                 / Puzzle.#SIZES.puzzle.width * this.columns);
-        if ((this.#selected.row != row) || (this.#selected.column != column)) {
-            [this.#tiles[this.#selected.row][this.#selected.column].row, this.#tiles[row][column].row] = [this.#tiles[row][column].row, this.#tiles[this.#selected.row][this.#selected.column].row];
-            [this.#tiles[this.#selected.row][this.#selected.column].column, this.#tiles[row][column].column] = [this.#tiles[row][column].column, this.#tiles[this.#selected.row][this.#selected.column].column];
-            this.render();
-        }
-        if (!this.finished) {
-            this.#selected = null;
-            this.listener = this.pick.bind(this);
+        if (!this.#tiles[row][column].selected) {
+            [this.#tiles[this.selected.row][this.selected.column].row, this.#tiles[row][column].row] =
+                    [this.#tiles[row][column].row, this.#tiles[this.selected.row][this.selected.column].row];
+            [this.#tiles[this.selected.row][this.selected.column].column, this.#tiles[row][column].column] =
+                    [this.#tiles[row][column].column, this.#tiles[this.selected.row][this.selected.column].column];
+            this.selected = null;
+            if (!this.finished) {
+                this.listener = this.pick.bind(this);
+            }
         }
     }
 
     shuffle() {
+        this.#tiles = [];
         for (let row = 0; row < this.rows; row++) {
             this.#tiles[row] = [];
             for (let column = 0; column < this.columns; column++) {
-                this.#tiles[row][column] = {row, column};
+                this.#tiles[row][column] = {row: row, column: column, selected: false};
             }
         }
         for (let k = this.rows * this.columns - 1; k > 0; k--) {
